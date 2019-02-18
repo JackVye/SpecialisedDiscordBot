@@ -1,7 +1,14 @@
+#In your Python terminal, add the directory path for BotFiles using:
+#include sys
+#sys.path.append('#path#//BotFiles')
 
+
+import os
+import importlib
 import discord
 import random
 import ctypes
+from BotFiles import DiceRoller
 
 client = discord.Client()
 
@@ -21,58 +28,15 @@ async def  on_message(message) :
         msg = msg.replace('Quote: ', '')
         await client.send_message(discord.Object(id=''), msg)
 
-    #roll dice
+    #roll dice. Edit away from message object to string
     if message.content.startswith('!roll '):
-        result = 0
-        msg = message.content
-        msg = msg.replace('!roll ', '')
-        msgList = msg.split('+')
-        Score = []
-        ScoreTicker = 0
-        x=0
-        endsum = 0
-        while x < len(msgList):
-            rollFragment= msgList[x].split('d')
-            if len(rollFragment) == 1:
-                endsum += int(msgList[x])
-                Score.append(int(msgList[x]))
-                ScoreTicker+=1
-            if len(rollFragment)== 2:
-                i=0
-                while i < int(rollFragment[0]):
-                    dice = random.randint(1,int(rollFragment[1]))
-                    endsum += dice
-                    Score.append(dice)
-                    ScoreTicker+=1
-                    i+=1
-            if len(rollFragment)==3:
-                i=0
-                while i < int(rollFragment[0])-int(rollFragment[2]):
-                    dice = random.randint(1,int(rollFragment[1]))
-                    endsum += dice
-                    Score.append(dice)
-                    ScoreTicker+=1
-                    i+=1
-                i=0
-                while i < int(rollFragment[2]):
-                    dice = random.randint(1,int(rollFragment[1]))
-                    dropped=false
-                    while j < int(rollFragment[0])-int(rollFragment[2]):
-                        if dice > Score[ScoreTicker-int(rollFragment[0])+j]&dropped==false:
-                            Score[ScoreTicker-int(rollFragment[0])+j]=dice
-                            dropped = true
-                    i+=1
-        endCalc = 0
-        while endCalc < ScoreTicker:
-            msg = msg + str(Score) + ' ' 
-            endCalc+=1
-        print = msg.format(message)
-        await client.send_message(message.channel, print)
-        print = 'Total: ' + string(endsum)
-        print = msg.format(message)
-        await client.send_message(message.channel, print)
-        x+=1
-
+        Score = DiceRoller.Roll_Dice(message)
+        endsum = Score[len(Score)-1]
+        Score.remove(endsum)
+        await client.send_message(message.channel, str(endsum))
+        await client.send_message(message.channel, str(Score))
+        
+        #add "import [module]" and unload commands
 @client.event
 async def on_ready():
     print('Logged in as')
