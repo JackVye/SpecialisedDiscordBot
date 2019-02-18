@@ -26,7 +26,7 @@ async def  on_message(message) :
     if message.content.startswith('!WhatIs '):
         What = Remember.What_Is(message)
     if not (message.content.startswith('!roll ') or message.content.startswith('!WhatIs ')):    #for all other messages
-        What = What(message)
+        What = GM.What(message)
 
     await client.send_message(Where, What)          #send reply
 
