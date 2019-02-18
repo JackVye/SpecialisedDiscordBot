@@ -9,34 +9,27 @@ import discord
 import random
 import ctypes
 from BotFiles import DiceRoller
+from BotFiles import GM
+from BotFiles import Remember
 
 client = discord.Client()
 
 
 @client.event
 #accept user text input
+#output is handled in main because it requires a client interraction
 async def  on_message(message) :
-    if message.author == client.user:
-        return
-    if message.content.startswith('!hello'):
-        msg = 'Hello {0.author.mention}'.format(message)
-        await client.send_message(message.channel, msg)
+    Where = GM.Where(message)                       #Where works for any case
 
-    #Quote channel system
-    if message.content.startswith('Quote: '):
-        msg = message.content
-        msg = msg.replace('Quote: ', '')
-        await client.send_message(discord.Object(id=''), msg)
+    if message.content.startswith('!roll '):        #special case for rolling a dice
+        What = DiceRoller.Roll_Dice(message)
+    if message.content.startswith('!WhatIs '):
+        What = Remember.What_Is(message)
+    if not (message.content.startswith('!roll ') or message.content.startswith('!WhatIs ')):    #for all other messages
+        What = What(message)
 
-    #roll dice. Edit away from message object to string
-    if message.content.startswith('!roll '):
-        Score = DiceRoller.Roll_Dice(message)
-        endsum = Score[len(Score)-1]
-        Score.remove(endsum)
-        await client.send_message(message.channel, str(endsum))
-        await client.send_message(message.channel, str(Score))
-        
-        #add "import [module]" and unload commands
+    await client.send_message(Where, What)          #send reply
+
 @client.event
 async def on_ready():
     print('Logged in as')
